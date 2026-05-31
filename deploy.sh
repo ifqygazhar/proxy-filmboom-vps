@@ -5,6 +5,7 @@ APP_NAME="${APP_NAME:-filmboom-vps-proxy}"
 APP_DIR="${APP_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 ENV_FILE="${ENV_FILE:-$APP_DIR/.env}"
 
+DEFAULT_HOST="${HOST:-0.0.0.0}"
 DEFAULT_PORT="${PORT:-8787}"
 DEFAULT_ALLOWED_ORIGINS="${ALLOWED_ORIGINS:-https://film.meongplod.my.id,http://localhost:5173,http://localhost:4173}"
 DEFAULT_PROXY_SHARED_SECRET="${PROXY_SHARED_SECRET:-}"
@@ -56,7 +57,8 @@ create_env_if_missing() {
 	fi
 
 	echo "Membuat env baru: $ENV_FILE"
-	cat >"$ENV_FILE" <<EOF
+cat >"$ENV_FILE" <<EOF
+HOST=$DEFAULT_HOST
 PORT=$DEFAULT_PORT
 ALLOWED_ORIGINS=$DEFAULT_ALLOWED_ORIGINS
 PROXY_SHARED_SECRET=$DEFAULT_PROXY_SHARED_SECRET

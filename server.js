@@ -6,6 +6,7 @@ const API_BASE_H5 = 'https://h5-api.aoneroom.com/wefeed-h5api-bff';
 const API_BASE_FILMBOOM = 'https://123movienow.cc/wefeed-h5api-bff';
 const MOVIENOW_ORIGIN = 'https://123movienow.cc';
 const MOVIEBOX_ORIGIN = 'https://themoviebox.xyz';
+const HOST = process.env.HOST || '0.0.0.0';
 const PORT = Number(process.env.PORT || 8787);
 const FETCH_TIMEOUT_MS = Number(process.env.FETCH_TIMEOUT_MS || 15000);
 const DEFAULT_ALLOWED_ORIGINS = [
@@ -512,7 +513,7 @@ async function handleRequest(request, response) {
 const isCliEntry = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
 
 if (isCliEntry) {
-	createServer(handleRequest).listen(PORT, () => {
-		console.log(`Filmboom VPS proxy listening on http://0.0.0.0:${PORT}`);
+	createServer(handleRequest).listen(PORT, HOST, () => {
+		console.log(`Filmboom VPS proxy listening on http://${HOST}:${PORT}`);
 	});
 }

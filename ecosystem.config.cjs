@@ -1,5 +1,5 @@
-const fs = require('node:fs');
-const path = require('node:path');
+const fs = require('fs');
+const path = require('path');
 
 function loadEnvFile(filePath) {
 	if (!fs.existsSync(filePath)) return;
@@ -40,6 +40,7 @@ module.exports = {
 			max_memory_restart: process.env.MAX_MEMORY_RESTART || '256M',
 			env: {
 				NODE_ENV: 'production',
+				HOST: process.env.HOST || '0.0.0.0',
 				PORT: process.env.PORT || '8787',
 				ALLOWED_ORIGINS:
 					process.env.ALLOWED_ORIGINS ||

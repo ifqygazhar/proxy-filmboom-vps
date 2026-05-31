@@ -18,11 +18,14 @@ bun run start
 Env opsional, simpan sebagai `.env` saat deploy ke VPS:
 
 ```bash
+HOST=0.0.0.0
 PORT=8787
 ALLOWED_ORIGINS=https://film.meongplod.my.id,http://localhost:5173
 PROXY_SHARED_SECRET=isi-secret-acak
 FETCH_TIMEOUT_MS=15000
 ```
+
+Kalau proxy akan ditaruh di belakang Nginx, set `HOST=127.0.0.1`. Kalau mau langsung dibuka lewat port VPS, pakai `HOST=0.0.0.0`.
 
 ## Deploy VPS dengan PM2
 
@@ -47,6 +50,7 @@ Contoh deploy dengan env custom:
 
 ```bash
 PORT=8787 \
+HOST=0.0.0.0 \
 ALLOWED_ORIGINS=https://film.meongplod.my.id \
 PROXY_SHARED_SECRET=isi-secret-acak \
 ./deploy.sh
