@@ -1,0 +1,52 @@
+const fs = require('node:fs');
+const path = require('node:path');
+
+function loadEnvFile(filePath) {
+	if (!fs.existsSync(filePath)) return;
+
+	const content = fs.readFileSync(filePath, 'utf8');
+
+	for (const rawLine of content.split(/\r?\n/)) {
+		const line = rawLine.trim();
+		if (!line || line.startsWith('#')) continue;
+
+		const separatorIndex = line.indexOf('=');
+		if (separatorIndex === -1) continue;
+
+		const key = line.slice(0, separatorIndex).trim();
+		const value = line.slice(separatorIndex + 1).trim();
+
+		if (key && process.env[key] === undefined) {
+			process.env[key] = value.replace(/^["']|["']$/g, '');
+		}
+	}
+}
+
+const appName = process.env.APP_NAME || 'filmboom-vps-proxy';
+const appDir = __dirname;
+
+loadEnvFile(path.join(appDir, '.env'));
+
+module.exports = {
+	apps: [
+		{
+			name: appName,
+			cwd: appDir,
+			script: path.join(appDir, 'server.js'),
+			interpreter: process.env.BUN_BIN || 'bun',
+			exec_mode: 'fork',
+			instances: 1,
+			watch: false,
+			max_memory_restart: process.env.MAX_MEMORY_RESTART || '256M',
+			env: {
+				NODE_ENV: 'production',
+				PORT: process.env.PORT || '8787',
+				ALLOWED_ORIGINS:
+					process.env.ALLOWED_ORIGINS ||
+					'https://film.meongplod.my.id,http://localhost:5173,http://localhost:4173',
+				PROXY_SHARED_SECRET: process.env.PROXY_SHARED_SECRET || '',
+				FETCH_TIMEOUT_MS: process.env.FETCH_TIMEOUT_MS || '15000'
+			}
+		}
+	]
+};
