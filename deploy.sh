@@ -30,6 +30,20 @@ ensure_bun() {
 	fi
 }
 
+resolve_bun_bin() {
+	if command -v bun >/dev/null 2>&1; then
+		BUN_BIN="$(command -v bun)"
+	elif [[ -x "$HOME/.bun/bin/bun" ]]; then
+		BUN_BIN="$HOME/.bun/bin/bun"
+		export PATH="$HOME/.bun/bin:$PATH"
+	else
+		echo "Bun tidak ditemukan di PATH atau $HOME/.bun/bin/bun." >&2
+		exit 1
+	fi
+
+	export BUN_BIN
+}
+
 ensure_pm2() {
 	if command -v pm2 >/dev/null 2>&1; then
 		return
@@ -63,7 +77,19 @@ PORT=$DEFAULT_PORT
 ALLOWED_ORIGINS=$DEFAULT_ALLOWED_ORIGINS
 PROXY_SHARED_SECRET=$DEFAULT_PROXY_SHARED_SECRET
 FETCH_TIMEOUT_MS=$DEFAULT_FETCH_TIMEOUT_MS
+BUN_BIN=$BUN_BIN
 EOF
+}
+
+set_env_value() {
+	local key="$1"
+	local value="$2"
+
+	if grep -q "^${key}=" "$ENV_FILE"; then
+		sed -i "s|^${key}=.*|${key}=${value}|" "$ENV_FILE"
+	else
+		printf '\n%s=%s\n' "$key" "$value" >>"$ENV_FILE"
+	fi
 }
 
 load_env() {
@@ -73,20 +99,21 @@ load_env() {
 	set +a
 
 	export APP_NAME
-	export BUN_BIN
-	BUN_BIN="$(command -v bun)"
 }
 
 ensure_bun
+resolve_bun_bin
 ensure_pm2
 create_env_if_missing
 load_env
+resolve_bun_bin
+set_env_value "BUN_BIN" "$BUN_BIN"
 
 echo "Menginstall dependency Bun..."
 bun install --production
 
 echo "Start/reload PM2 app: $APP_NAME"
-pm2 start "$APP_DIR/ecosystem.config.cjs" --update-env
+BUN_BIN="$BUN_BIN" pm2 start "$APP_DIR/ecosystem.config.cjs" --update-env
 pm2 save
 
 echo

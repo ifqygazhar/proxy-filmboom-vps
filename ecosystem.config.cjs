@@ -27,13 +27,30 @@ const appDir = __dirname;
 
 loadEnvFile(path.join(appDir, '.env'));
 
+function pickBunInterpreter() {
+	const candidates = [
+		process.env.BUN_BIN,
+		path.join(process.env.HOME || '', '.bun/bin/bun'),
+		'/home/linux/.bun/bin/bun',
+		'/root/.bun/bin/bun'
+	].filter(Boolean);
+
+	for (const candidate of candidates) {
+		if (fs.existsSync(candidate)) {
+			return candidate;
+		}
+	}
+
+	return 'bun';
+}
+
 module.exports = {
 	apps: [
 		{
 			name: appName,
 			cwd: appDir,
 			script: path.join(appDir, 'server.js'),
-			interpreter: process.env.BUN_BIN || 'bun',
+			interpreter: pickBunInterpreter(),
 			exec_mode: 'fork',
 			instances: 1,
 			watch: false,
